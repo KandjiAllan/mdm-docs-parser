@@ -1,0 +1,162 @@
+{
+  title: [32m'AirPlay Security'[39m,
+  description: [32m'AirPlay Security settings'[39m,
+  type: [32m'object'[39m,
+  additionalProperties: [33mfalse[39m,
+  properties: {
+    SecurityType: {
+      title: [32m'Security Type'[39m,
+      description: [32m'The security policy for AirPlay.\n'[39m +
+        [32m"'PASSCODE_ONCE' requires an onscreen passcode on first connection from a device. Subsequent connections from the same device aren't prompted.\n"[39m +
+        [32m"'PASSCODE_ALWAYS' requires an onscreen passcode for every AirPlay connection. After an AirPlay connection ends, reconnecting within 30 seconds is allowed without a password.\n"[39m +
+        [32m'\n'[39m +
+        [32m"'PASSWORD' requires a passphrase as specified in the 'Password' key.\n"[39m +
+        [32m'\n'[39m +
+        [32m"'NONE' was deprecated in tvOS 11.3. Existing profiles using 'NONE' get the 'PASSWORD_ONCE' behavior."[39m,
+      type: [32m'string'[39m,
+      enum: [ [32m'PASSCODE_ONCE'[39m, [32m'PASSCODE_ALWAYS'[39m, [32m'PASSWORD'[39m ]
+    },
+    AccessType: {
+      title: [32m'Access Type'[39m,
+      description: [32m'The access policy for AirPlay.\n'[39m +
+        [32m"'ANY' allows connections from both Ethernet/WiFi and Apple Wireless Direct Link.\n"[39m +
+        [32m"'WIFI_ONLY' allows connections only from devices on the same Ethernet/WiFi network as Apple TV."[39m,
+      type: [32m'string'[39m,
+      enum: [ [32m'ANY'[39m, [32m'WIFI_ONLY'[39m ]
+    },
+    Password: {
+      title: [32m'Password'[39m,
+      description: [32m"The AirPlay password; required if SecurityType is 'PASSWORD'."[39m,
+      type: [32m'string'[39m
+    },
+    EAPClientConfiguration: {
+      title: [32m'EAP Client Configuration'[39m,
+      description: [32m'The enterprise network configuration.'[39m,
+      type: [32m'object'[39m,
+      properties: {
+        AcceptEAPTypes: {
+          title: [32m'Accept EAP Types'[39m,
+          description: [32m'The system accepts the following EAP types:\n'[39m +
+            [32m'13 = TLS\n'[39m +
+            [32m'17 = LEAP\n'[39m +
+            [32m'18 = EAP-SIM\n'[39m +
+            [32m'21 = TTLS\n'[39m +
+            [32m'23 = EAP-AKA\n'[39m +
+            [32m'25 = PEAP\n'[39m +
+            [32m'43 = EAP-FAST\n'[39m +
+            [32m'\n'[39m +
+            [32m'For EAP-TLS authentication without a network payload, install the necessary identity certificates and have your users select EAP-TLS mode in the 802.1X credentials dialog that appears when they connect to the network. For other EAP types, a network payload is necessary and must specify the correct settings for the network.'[39m,
+          type: [32m'array'[39m
+        },
+        UserName: {
+          title: [32m'Username'[39m,
+          description: [32m"The user name for the account. If you don't specify a value, the system prompts the user during login."[39m,
+          type: [32m'string'[39m
+        },
+        UserPassword: {
+          title: [32m'Password'[39m,
+          description: [32m"The user's password. If you don't specify a value, the system prompts the user during login."[39m,
+          type: [32m'string'[39m
+        },
+        PayloadCertificateAnchorUUID: {
+          title: [32m'Certificate Anchor UUID'[39m,
+          description: [32m"An array of the UUID of a certificate payloads in the same profile to trust for authentication. Use this key to prevent the device from asking the user whether to trust the listed certificates. Dynamic trust (the certificate dialogue) is in a disabled state if you specify this property without also enabling 'TLSAllowTrustExceptions'."[39m,
+          type: [32m'array'[39m
+        },
+        TLSTrustedCertificates: {
+          title: [32m'TLS Trusted Certificates'[39m,
+          description: [32m'An array of trusted certificates. Each entry in the array must contain certificate data that represents an anchor certificate used for verifying the server certificate.'[39m,
+          type: [32m'array'[39m
+        },
+        TLSTrustedServerNames: {
+          title: [32m'TLS Trusted Server Names'[39m,
+          description: [32m"The list of accepted server certificate common names. If a server presents a certificate that isn't in this list, the system doesn't trust it.\n"[39m +
+            [32m"If you specify this property, the system disables dynamic trust (the certificate dialog) unless you also specify 'TLSAllowTrustExceptions' with the value 'true'.\n"[39m +
+            [32m"If necessary, use wildcards to specify the name, such as 'wpa.*.example.com'."[39m,
+          type: [32m'array'[39m
+        },
+        TLSAllowTrustExceptions: {
+          title: [32m'Allow Trust Exceptions'[39m,
+          description: [32m"If 'true', allows a dynamic trust decision by the user. The dynamic trust is the certificate dialogue that appears when the system doesn't trust a certificate.\n"[39m +
+            [32m"If 'false', the authentication fails if the system doesn't already trust the certificate.\n"[39m +
+            [32m'As of iOS 8, Apple no longer supports this key.'[39m,
+          type: [32m'boolean'[39m,
+          default: [33mtrue[39m
+        },
+        TLSCertificateIsRequired: {
+          description: [32m"If 'true', allows for two-factor authentication for EAP-TTLS, PEAP, or EAP-FAST. If 'false', allows for zero-factor authentication for EAP-TLS.\n"[39m +
+            [32m"If you don't specify a value, the default is 'true' for EAP-TLS, and 'false' for other EAP types."[39m,
+          type: [32m'boolean'[39m
+        },
+        TTLSInnerAuthentication: {
+          title: [32m'TTLS Inner Authentication'[39m,
+          description: [32m'The inner authentication that the TTLS module uses.'[39m,
+          type: [32m'string'[39m,
+          default: [32m'MSCHAPv2'[39m,
+          enum: [ [32m'PAP'[39m, [32m'EAP'[39m, [32m'CHAP'[39m, [32m'MSCHAP'[39m, [32m'MSCHAPv2'[39m ]
+        },
+        TLSMinimumVersion: {
+          description: [32m'The minimum TLS version for EAP authentication.'[39m,
+          type: [32m'string'[39m,
+          default: [32m'1.0'[39m,
+          enum: [ [32m'1.0'[39m, [32m'1.1'[39m, [32m'1.2'[39m, [32m'1.3'[39m ]
+        },
+        TLSMaximumVersion: {
+          description: [32m'The maximum TLS version for EAP authentication.'[39m,
+          type: [32m'string'[39m,
+          default: [32m'1.2'[39m,
+          enum: [ [32m'1.0'[39m, [32m'1.1'[39m, [32m'1.2'[39m, [32m'1.3'[39m ]
+        },
+        OuterIdentity: {
+          title: [32m'Outer Identity'[39m,
+          description: [32m"A name that hides the user's true name. The user's actual name appears only inside the encrypted tunnel. For example, you might set this to anonymous or anon, or anon@mycompany.net. It can increase security because an attacker can't see the authenticating user's name in the clear.\n"[39m +
+            [32m'\n'[39m +
+            [32m'This key is only relevant to TTLS, PEAP, and EAP-FAST.'[39m,
+          type: [32m'string'[39m
+        },
+        EAPFASTUsePAC: {
+          title: [32m'Use PAC'[39m,
+          description: [32m"If 'true', the device uses an existing PAC if it's present. Otherwise, the server must present its identity using a certificate."[39m,
+          type: [32m'boolean'[39m
+        },
+        EAPFASTProvisionPAC: {
+          title: [32m'Provision PAC'[39m,
+          description: [32m"If 'true', allows PAC provisioning.\n"[39m +
+            [32m'\n'[39m +
+            [32m"This value is only applicable if 'EAPFASTUsePAC' is 'true'. This value must be 'true' for EAP-FAST PAC usage to succeed because there's no other way to provision a PAC."[39m,
+          type: [32m'boolean'[39m
+        },
+        EAPFASTProvisionPACAnonymously: {
+          title: [32m'Provision PAC Anonymously'[39m,
+          description: [32m"If 'true', provisions the device anonymously. Note that there are known machine-in-the-middle attacks for anonymous provisioning."[39m,
+          type: [32m'boolean'[39m
+        },
+        EAPSIMNumberOfRANDs: {
+          title: [32m'Allow Two RANDs'[39m,
+          description: [32m'The minimum number of RAND values to accept from the server.\n'[39m +
+            [32m'For use with EAP-SIM only.'[39m,
+          type: [32m'number'[39m,
+          default: [33m3[39m,
+          enum: [ [33m2[39m, [33m3[39m ]
+        },
+        SystemModeCredentialsSource: {
+          description: [32m"Set this string to 'ActiveDirectory' to use the AD computer name and password credentials.\n"[39m +
+            [32m"If using this property, you can't use 'SystemModeUseOpenDirectoryCredentials'."[39m,
+          type: [32m'string'[39m
+        },
+        SystemModeUseOpenDirectoryCredentials: {
+          description: [32m"If 'true', the system mode connection tries to use the Open Directory credentials.\n"[39m +
+            [32m"If using this property, you can't use 'SystemModeCredentialsSource'."[39m,
+          type: [32m'boolean'[39m
+        },
+        OneTimeUserPassword: {
+          title: [32m'Per-Connection Password'[39m,
+          description: [32m"If 'true', the user receives a prompt for a password each time they connect to the network."[39m,
+          type: [32m'boolean'[39m
+        }
+      },
+      required: [ [32m'AcceptEAPTypes'[39m ]
+    }
+  },
+  required: [ [32m'SecurityType'[39m, [32m'AccessType'[39m ]
+}
