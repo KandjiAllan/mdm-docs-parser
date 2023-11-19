@@ -3,8 +3,6 @@ import { join } from "node:path";
 
 import yaml from "yaml";
 
-const cycle = require("json-cycle");
-
 export type SchemaProviderLoc = "repo";
 
 export default class SchemaProvider<T> {
@@ -37,10 +35,6 @@ export default class SchemaProvider<T> {
     const TEST_FILE = Bun.file(filename);
     const yamlFileContent = await TEST_FILE.text();
     const parsedYaml: T = yaml.parse(yamlFileContent);
-
-    // TODO:
-    // A small hack to get out of circular references.
-    // const y: T = JSON.parse(JSON.stringify(cycle.decycle(parsedYaml)));
 
     return parsedYaml;
   }

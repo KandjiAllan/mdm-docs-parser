@@ -1,5 +1,3 @@
-import util from "node:util";
-
 import {
   PayloadResponseKeys,
   PayloadResponseType,
@@ -14,26 +12,33 @@ class JSONSchema {
 
   _evaluatePayloadKey(payloadKey: PayloadResponseKeys) {
     const {
+      // Taken out, but unused..
+      title,
+      presence,
+      key,
+
       type,
-      // title,
       content,
       rangelist,
       default: defaultValue,
       range,
       format,
       subkeys,
+
+      // Used as _meta
+      ...rest
     } = payloadKey;
     const evaluatedType = mdmTypeToSchemaType[type];
 
     let props: any = {
-      // ...(title && { title }),
       ...(content && { description: content }),
-      additionalProperties: false,
+      ...(type !== "<array>" && { additionalProperties: false }),
       type: evaluatedType,
       ...(defaultValue && { default: defaultValue }),
+      _meta: rest,
     };
 
-    // TODO: <Any>, <date>, <data>
+    // TODO: <Any>, <date>, <data> - Data treated as string
 
     if (type === "<string>") {
       props = {
@@ -46,22 +51,17 @@ class JSONSchema {
     }
 
     if (type === "<boolean>") {
-      // The catch-all standard handling for all cases covers boolean for now.
     }
 
-    if (type === "<array>") {
-      if (subkeys) {
-        props = {
-          ...props,
-          ...this._setupEvaluatePayloadKeys(subkeys, "<array>"),
-        };
-      }
+    if (type === "<array>" && subkeys) {
+      props = {
+        ...props,
+        ...this._setupEvaluatePayloadKeys(subkeys, "<array>"),
+      };
     }
 
-    if (type === "<dictionary>") {
-      if (subkeys) {
-        props = { ...props, ...this._setupEvaluatePayloadKeys(subkeys, type) };
-      }
+    if (type === "<dictionary>" && subkeys) {
+      props = { ...props, ...this._setupEvaluatePayloadKeys(subkeys, type) };
     }
 
     if (type === "<integer>" || type === "<real>") {
@@ -115,6 +115,7 @@ class JSONSchema {
     let root: any = {
       title,
       description,
+      _meta: { payload, reasons },
       type: "object",
       additionalProperties: false,
       properties: {},
@@ -125,6 +126,28 @@ class JSONSchema {
       root = {
         ...root,
         ...this._setupEvaluatePayloadKeys(payloadkeys),
+      };
+    }
+
+    // If responsekeys exist, change the schema to have two top level
+    // properties.
+    if (responsekeys) {
+      root = {
+        ...root,
+        properties: {
+          PayloadKeys: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              ...root.properties,
+            },
+          },
+          ResponseKeys: {
+            type: "object",
+            additionalProperties: false,
+            ...this._setupEvaluatePayloadKeys(responsekeys),
+          },
+        },
       };
     }
 
