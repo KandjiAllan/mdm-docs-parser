@@ -21,9 +21,6 @@ export default class SchemaProvider<T> {
     "toplevel",
     "globalpreferences",
     "commonpayloadkeys",
-    // TEMP
-    "com.apple.homescreenlayout.yaml",
-    "com.apple.applicationaccess.new.yaml",
   ];
 
   async getFiles(directoryPath: string) {
