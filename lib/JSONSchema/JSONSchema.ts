@@ -8,7 +8,7 @@ import { BunFile } from "bun";
 
 class JSONSchema {
   private schema = {};
-  constructor() {}
+  constructor(private includeMeta: boolean = false) {}
 
   _evaluatePayloadKey(payloadKey: PayloadResponseKeys) {
     const {
@@ -28,14 +28,14 @@ class JSONSchema {
       // Used as _meta
       ...rest
     } = payloadKey;
-    const evaluatedType = mdmTypeToSchemaType[type];
 
+    const evaluatedType = mdmTypeToSchemaType[type];
     let props: any = {
+      type: evaluatedType,
       ...(content && { description: content }),
       ...(type !== "<array>" && { additionalProperties: false }),
-      type: evaluatedType,
       ...(defaultValue && { default: defaultValue }),
-      _meta: rest,
+      ...(this.includeMeta && { _meta: rest }),
     };
 
     // TODO: <Any>, <date>, <data> - Data treated as string
@@ -115,11 +115,11 @@ class JSONSchema {
     let root: any = {
       title,
       description,
-      _meta: { payload, reasons },
       type: "object",
       additionalProperties: false,
       properties: {},
       required: [],
+      ...(this.includeMeta && { _meta: { payload, reasons } }),
     };
 
     if (payloadkeys) {

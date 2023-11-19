@@ -30,11 +30,11 @@ const getCircularReplacer = () => {
  *
  * Important
  *  - Circular references - Currently HSL and App Access New are the only culprits
- *  - Handle ResponseKeys for MDM Commands
+ *  - Handle ResponseKeys for MDM Commands -- DONE
  *
  * Less Important:
  *  - CLI arg to run on only specific files/bundles
- *  - Hide _meta in json schema files based on CLI arg
+ *  - Hide _meta in json schema files based on CLI arg -- DONE
  */
 
 type RunKind = "profiles" | "commands";
@@ -42,9 +42,16 @@ type OutKind = "file" | "stdout";
 type CliArgs = {
   out: OutKind;
   kind: RunKind;
+  verbose?: boolean;
+  exclude_meta?: boolean;
 };
+type RunOpts = Pick<CliArgs, "verbose" | "exclude_meta">;
 
-const run = async (kind: RunKind, out: OutKind, verbose: boolean = false) => {
+const run = async (
+  kind: RunKind,
+  out: OutKind,
+  { verbose = false, exclude_meta }: RunOpts
+) => {
   const schemaProvider = new SchemaProvider<TopLevel>("repo");
   const files = await (kind === "profiles"
     ? schemaProvider.getMDMProfiles()
@@ -75,7 +82,7 @@ const run = async (kind: RunKind, out: OutKind, verbose: boolean = false) => {
     //   console.log(util.inspect(JSON.parse(x), false, null, true));
     // }
     try {
-      const jSchema = new JSONSchema();
+      const jSchema = new JSONSchema(!exclude_meta);
       jSchema.convertMdmSchema(schema);
 
       if (out === "stdout") {
@@ -111,7 +118,7 @@ const run = async (kind: RunKind, out: OutKind, verbose: boolean = false) => {
 const cli = () => {
   const args = minimist<CliArgs>(Bun.argv);
 
-  const { out, kind, verbose } = args;
+  const { out, kind, exclude_meta, verbose } = args;
 
   const EXPECTED_OUTS = ["file", "stdout"];
   if (!out || !EXPECTED_OUTS.includes(out)) {
@@ -125,7 +132,7 @@ const cli = () => {
     exit(1);
   }
 
-  run(kind, out, verbose);
+  run(kind, out, { verbose, exclude_meta });
 };
 
 cli();
