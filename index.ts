@@ -33,7 +33,11 @@ const run = async (kind: "profiles" | "commands") => {
       const jSchema = new JSONSchema();
       jSchema.convertMdmSchema(schema);
 
-      jSchema.writeTo(Bun.file(`${dir}/${schema.title}`));
+      jSchema.writeTo(
+        Bun.file(
+          `${dir}/${schema.title.toLowerCase().split(" ").join("_")}.jsonc`
+        )
+      );
       results.push({ title: schema.title, status: 0 });
     } catch (e) {
       results.push({ title: schema.title, status: 1 });
@@ -45,4 +49,4 @@ const run = async (kind: "profiles" | "commands") => {
   );
 };
 
-run("commands");
+run("profiles");

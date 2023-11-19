@@ -132,8 +132,8 @@ class JSONSchema {
   }
 
   writeTo(file: BunFile) {
-    const out = util.inspect(this.schema, false, null, true);
-    Bun.write(file, out);
+    // const out = util.inspect(this.schema, false, null, true);
+    Bun.write(file, JSON.stringify(this.schema, null, 2));
   }
 }
 
