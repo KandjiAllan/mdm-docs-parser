@@ -5,7 +5,7 @@
   "scripts": {
     "start": "bun index.ts",
     "clean": "rimraf output",
-    "dev": "bun run clean && bun run start"
+    "dev": "bun run clean && bun index.ts"
   },
   "devDependencies": {
     "@types/minimist": "^1.2.5",
