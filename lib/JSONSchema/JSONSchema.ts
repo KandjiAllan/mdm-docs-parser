@@ -1,11 +1,15 @@
+import util from "node:util";
+
 import {
   PayloadResponseKeys,
   PayloadResponseType,
 } from "../../types/schema-definition/payload-response-keys";
 import { TopLevel } from "../../types/schema-definition/top-level";
 import { mdmTypeToSchemaType } from "./common";
+import { BunFile } from "bun";
 
 class JSONSchema {
+  private schema = {};
   constructor() {}
 
   _evaluatePayloadKey(payloadKey: PayloadResponseKeys) {
@@ -124,7 +128,12 @@ class JSONSchema {
       };
     }
 
-    return root;
+    this.schema = root;
+  }
+
+  writeTo(file: BunFile) {
+    const out = util.inspect(this.schema, false, null, true);
+    Bun.write(file, out);
   }
 }
 

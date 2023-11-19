@@ -1,26 +1,48 @@
 import util from "node:util";
-import yaml from "yaml";
+import fs from "node:fs";
+import { exit } from "node:process";
+
+import minimist from "minimist";
+import logSymbols from "log-symbols";
+
+import SchemaProvider from "./lib/SchemaProvider";
+import JSONSchema from "./lib/JSONSchema";
 import { TopLevel } from "./types/schema-definition/top-level";
-import JSONSchema from "./lib/JSONSchema/JSONSchema";
 
-// Read test file and extract string content
-const extractYaml = async () => {
-  const TEST_FILE = Bun.file("./wifi.yaml");
-  const yamlFileContent = await TEST_FILE.text();
+const run = async (kind: "profiles" | "commands") => {
+  const schemaProvider = new SchemaProvider<TopLevel>("repo");
+  const files = await (kind === "profiles"
+    ? schemaProvider.getMDMProfiles()
+    : schemaProvider.getMDMCommands());
 
-  const parsedYaml: TopLevel = yaml.parse(yamlFileContent);
+  if (!files) {
+    exit(1);
+  }
 
-  return parsedYaml;
+  // Create directory for output
+  const dir = `./output/${kind}`;
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+
+  const results: Array<{ title: string; status: number }> = [];
+
+  for (let i = 0; i < files.length; i++) {
+    const schema = await schemaProvider.readYamlFile(files[i]);
+    try {
+      const jSchema = new JSONSchema();
+      jSchema.convertMdmSchema(schema);
+
+      jSchema.writeTo(Bun.file(`${dir}/${schema.title}`));
+      results.push({ title: schema.title, status: 0 });
+    } catch (e) {
+      results.push({ title: schema.title, status: 1 });
+    }
+  }
+
+  results.map(({ title, status }) =>
+    console.log(`${title}: ${status ? logSymbols.error : logSymbols.success}`)
+  );
 };
 
-const parsedSchema = await extractYaml();
-
-const jSchema = new JSONSchema();
-console.log(
-  util.inspect(
-    jSchema.convertMdmSchema(parsedSchema),
-    false,
-    null,
-    true /* enable colors */
-  )
-);
+run("commands");

@@ -2,13 +2,22 @@
   "name": "mdm",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "run": "bun index.ts",
+    "clean": "rimraf output"
+  },
   "devDependencies": {
-    "bun-types": "latest"
+    "@types/minimist": "^1.2.5",
+    "bun-types": "latest",
+    "rimraf": "^5.0.5"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "json-cycle": "^1.5.0",
+    "log-symbols": "^6.0.0",
+    "minimist": "^1.2.8",
     "yaml": "^2.3.4"
   }
 }
