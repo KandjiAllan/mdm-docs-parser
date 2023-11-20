@@ -18,6 +18,10 @@ https://github.com/apple/device-management/blob/release/docs/schema.yaml
 
 After cloning, run `git submodule update --init` to initialize the `device-management` submodule.
 
+Example run to generate JSON Schema files for all available MDM Profile/Command schemas:
+
+`bun run dev --out=file`
+
 Example run to generate JSON Schema files for all available MDM Profile schemas:
 
 `bun run dev --out=file --kind=profiles`

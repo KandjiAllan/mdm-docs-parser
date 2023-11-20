@@ -1,7 +1,7 @@
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
 
-import yaml from "yaml";
+import yaml, { Schema } from "yaml";
 
 export type SchemaProviderLoc = "repo";
 
@@ -13,6 +13,10 @@ export default class SchemaProvider<T> {
   static DEVICE_MANAGEMENT_REPO_MDM = `${this.DEVICE_MANAGEMENT_REPO_LOC}/mdm`;
   static DEVICE_MANAGEMENT_REPO_COMMANDS = `${this.DEVICE_MANAGEMENT_REPO_MDM}/commands`;
   static DEVICE_MANAGEMENT_REPO_PROFILES = `${this.DEVICE_MANAGEMENT_REPO_MDM}/profiles`;
+
+  // Declarative
+  static DEVICE_MANAGEMENT_REPO_DECLARATIVE = `${this.DEVICE_MANAGEMENT_REPO_LOC}/declarative`;
+  static DEVICE_MANAGEMENT_REPO_DECL_CONFIGS = `${this.DEVICE_MANAGEMENT_REPO_DECLARATIVE}/declarations/configurations`;
 
   // Files to ignore as they are not actual mdm profiles.
   static DEVICE_MANAGEMENT_REPO_PROFILES_IGNORED = [

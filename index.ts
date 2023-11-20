@@ -26,7 +26,7 @@ type RunKind = "profiles" | "commands";
 type OutKind = "file" | "stdout";
 type CliArgs = {
   out: OutKind;
-  kind: RunKind;
+  kind?: RunKind;
   verbose?: boolean;
   exclude_meta?: boolean;
 };
@@ -93,7 +93,7 @@ const run = async (
     );
   }
 
-  console.log(`\n${logSymbols.success} Task Completed ${logSymbols.success}`);
+  console.log(`${kind} parsing: ${logSymbols.success}`);
 };
 
 /** Main - Manages the cli interface and calls the run method according to args.
@@ -110,12 +110,17 @@ const cli = () => {
   }
 
   const EXPECTED_KINDS: Array<RunKind> = ["profiles", "commands"];
-  if (!kind || !EXPECTED_KINDS.includes(kind)) {
+  if (kind && !EXPECTED_KINDS.includes(kind)) {
     console.error("--kind is required. ex. --kind=profiles | --kind=commands");
     exit(1);
   }
 
-  run(kind, out, { verbose, exclude_meta });
+  if (!kind) {
+    run("profiles", out, { verbose, exclude_meta });
+    run("commands", out, { verbose, exclude_meta });
+  } else {
+    run(kind, out, { verbose, exclude_meta });
+  }
 };
 
 cli();
