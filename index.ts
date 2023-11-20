@@ -1,6 +1,5 @@
-import fs from "node:fs";
-import util from "node:util";
 import { exit } from "node:process";
+import { execSync } from "node:child_process";
 
 import minimist from "minimist";
 import logSymbols from "log-symbols";
@@ -16,6 +15,7 @@ import { TopLevel } from "./types/schema-definition/top-level";
  *  - Circular references - Currently HSL and App Access New are the only
  *    culprits -- Closer to done
  *  - Handle ResponseKeys for MDM Commands -- DONE
+ *
  *
  * Less Important:
  *  - CLI arg to run on only specific files/bundles
@@ -47,6 +47,12 @@ const run = async (
     exit(1);
   }
 
+  const deviceManagementHash = execSync(
+    "cd device-management && git rev-parse HEAD"
+  )
+    .toString()
+    .trim()
+    .slice(0, 7);
   const results: Array<{ title: string; status: number }> = [];
 
   for (let i = 0; i < files.length; i++) {
@@ -64,8 +70,7 @@ const run = async (
         jSchema.writeTo(Bun.stdout);
       } else if (out === "file") {
         // Create directory for output
-
-        const dir = `./output/${kind}`;
+        const dir = `./output/${deviceManagementHash}/${kind}`;
         const outFileName = (schema.payload?.payloadtype || schema.title)
           .toLowerCase()
           .split(" ")
