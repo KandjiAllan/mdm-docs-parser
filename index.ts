@@ -56,10 +56,6 @@ const run = async (
       continue;
     }
 
-    if (schema.title === "Home Screen Layout") {
-      // const x = JSON.stringify(schema, getCircularReplacer());
-      console.log(util.inspect(schema, false, null, true));
-    }
     try {
       const jSchema = new JSONSchema(!exclude_meta);
       jSchema.convertMdmSchema(schema);
