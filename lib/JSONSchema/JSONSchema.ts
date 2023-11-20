@@ -1,10 +1,12 @@
+import fs from "node:fs";
+import { BunFile } from "bun";
+
 import {
   PayloadResponseKeys,
   PayloadResponseType,
 } from "../../types/schema-definition/payload-response-keys";
 import { TopLevel } from "../../types/schema-definition/top-level";
 import { mdmTypeToSchemaType } from "./common";
-import { BunFile } from "bun";
 
 class JSONSchema {
   private schema = {};
@@ -32,10 +34,10 @@ class JSONSchema {
     const evaluatedType = mdmTypeToSchemaType[type];
     let props: any = {
       type: evaluatedType,
+      ...(this.includeMeta && { _meta: rest }),
       ...(content && { description: content }),
       ...(type !== "<array>" && { additionalProperties: false }),
       ...(defaultValue && { default: defaultValue }),
-      ...(this.includeMeta && { _meta: rest }),
     };
 
     // TODO: <Any>, <date>, <data> - Data treated as string
@@ -117,9 +119,9 @@ class JSONSchema {
       description,
       type: "object",
       additionalProperties: false,
+      ...(this.includeMeta && { _meta: { payload, reasons } }),
       properties: {},
       required: [],
-      ...(this.includeMeta && { _meta: { payload, reasons } }),
     };
 
     if (payloadkeys) {
@@ -154,7 +156,11 @@ class JSONSchema {
     this.schema = root;
   }
 
-  writeTo(file: BunFile) {
+  writeTo(file: BunFile, dir?: string) {
+    if (dir && !fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
     Bun.write(file, JSON.stringify(this.schema, null, 2));
   }
 }

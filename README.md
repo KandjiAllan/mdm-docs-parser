@@ -33,3 +33,8 @@ You can get the output to stdout instead:
 Verbose output can provide some more information if necessary:
 
 `bun run dev --out=file --kind=commands --verbose`
+
+Metadata from the payload fields is automatically kept and stored under `_meta`
+tags within the root schema, and within each key (if applies). You can stop this with:
+
+`bun run dev --out=file --kind=profiles --exclude_meta`

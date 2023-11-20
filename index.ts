@@ -8,28 +8,13 @@ import logSymbols from "log-symbols";
 import SchemaProvider from "./lib/SchemaProvider";
 import JSONSchema from "./lib/JSONSchema";
 import { TopLevel } from "./types/schema-definition/top-level";
-import deepcopy from "deepcopy";
-
-const getCircularReplacer = () => {
-  const seen = new WeakSet();
-  return (key: any, value: any) => {
-    if (typeof value === "object" && value !== null) {
-      if (seen.has(value)) {
-        const deep = deepcopy(value);
-        seen.add(deep);
-        return deep;
-      }
-      seen.add(value);
-    }
-    return value;
-  };
-};
 
 /**
  * TODO:
  *
  * Important
- *  - Circular references - Currently HSL and App Access New are the only culprits
+ *  - Circular references - Currently HSL and App Access New are the only
+ *    culprits -- Closer to done
  *  - Handle ResponseKeys for MDM Commands -- DONE
  *
  * Less Important:
@@ -62,12 +47,6 @@ const run = async (
     exit(1);
   }
 
-  // Create directory for output
-  const dir = `./output/${kind}`;
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-
   const results: Array<{ title: string; status: number }> = [];
 
   for (let i = 0; i < files.length; i++) {
@@ -77,10 +56,10 @@ const run = async (
       continue;
     }
 
-    // if (schema.title === "Home Screen Layout") {
-    //   const x = JSON.stringify(schema, getCircularReplacer());
-    //   console.log(util.inspect(JSON.parse(x), false, null, true));
-    // }
+    if (schema.title === "Home Screen Layout") {
+      // const x = JSON.stringify(schema, getCircularReplacer());
+      console.log(util.inspect(schema, false, null, true));
+    }
     try {
       const jSchema = new JSONSchema(!exclude_meta);
       jSchema.convertMdmSchema(schema);
@@ -88,11 +67,14 @@ const run = async (
       if (out === "stdout") {
         jSchema.writeTo(Bun.stdout);
       } else if (out === "file") {
-        jSchema.writeTo(
-          Bun.file(
-            `${dir}/${schema.title.toLowerCase().split(" ").join("_")}.jsonc`
-          )
-        );
+        // Create directory for output
+
+        const dir = `./output/${kind}`;
+        const outFileName = (schema.payload?.payloadtype || schema.title)
+          .toLowerCase()
+          .split(" ")
+          .join("_");
+        jSchema.writeTo(Bun.file(`${dir}/${outFileName}.jsonc`), dir);
       }
 
       results.push({ title: schema.title, status: 0 });

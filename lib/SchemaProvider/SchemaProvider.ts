@@ -36,7 +36,31 @@ export default class SchemaProvider<T> {
     const yamlFileContent = await TEST_FILE.text();
     const parsedYaml: T = yaml.parse(yamlFileContent);
 
-    return parsedYaml;
+    /** Replaces circular references - dereferences one level  */
+    // TODO: Currently sets subkeys, the typical circular reference field, to
+    // undefined, so resulting type is usually unset, such as `unknown[]`.
+    const dereference = (val: any, cache?: any) => {
+      cache = cache || new WeakSet();
+
+      if (val && typeof val == "object") {
+        // TODO: Determines what subkeys gets replaced with.
+        if (cache.has(val)) return;
+
+        cache.add(val);
+
+        const obj: any = Array.isArray(val) ? [] : {};
+        for (let idx in val) {
+          obj[idx] = dereference(val[idx], cache);
+        }
+
+        cache.delete(val);
+        return obj;
+      }
+
+      return val;
+    };
+
+    return dereference(parsedYaml);
   }
 
   async getMDMProfiles() {
